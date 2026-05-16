@@ -1,0 +1,120 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum UserRole {
+  BUYER
+  BRAND_OWNER
+  ADMIN
+}
+
+enum AuctionStatus {
+  ACTIVE
+  ENDED
+  SETTLED
+  CANCELLED
+}
+
+enum BidStatus {
+  ACTIVE
+  OUTBID
+  WON
+  REFUNDED
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  passwordHash  String    @map("password_hash")
+  walletAddress String?   @unique @map("wallet_address")
+  role          UserRole  @default(BUYER)
+  verified      Boolean   @default(false)
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  brand    Brand?
+  auctions Auction[] @relation("SellerAuctions")
+  bids     Bid[]
+
+  @@map("users")
+}
+
+model Brand {
+  id                String   @id @default(uuid())
+  userId            String   @unique @map("user_id")
+  name              String   @unique
+  logo              String?
+  logoIpfsHash      String?  @map("logo_ipfs_hash")
+  metadataIpfsHash  String?  @map("metadata_ipfs_hash")
+  onChainBrandId    Int?     @map("on_chain_brand_id")
+  verified          Boolean  @default(false)
+  verificationRules Json     @default("[]") @map("verification_rules")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items Item[]
+
+  @@map("brands")
+}
+
+model Item {
+  id           String   @id @default(uuid())
+  nftTokenId   String?  @map("nft_token_id")
+  chipId       String   @unique @map("chip_id")
+  brandId      String   @map("brand_id")
+  ipfsHash     String   @map("ipfs_hash")
+  metadata     Json     @default("{}")
+  mintTxHash   String?  @map("mint_tx_hash")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  brand    Brand     @relation(fields: [brandId], references: [id])
+  auctions Auction[]
+
+  @@map("items")
+}
+
+model Auction {
+  id              String        @id @default(uuid())
+  onChainId       String?       @map("on_chain_id")
+  itemId          String        @map("item_id")
+  sellerId        String        @map("seller_id")
+  reservePrice    Decimal       @map("reserve_price") @db.Decimal(78, 0)
+  startTime       DateTime      @map("start_time")
+  endTime         DateTime      @map("end_time")
+  status          AuctionStatus @default(ACTIVE)
+  highestBid      Decimal?      @map("highest_bid") @db.Decimal(78, 0)
+  highestBidderId String?       @map("highest_bidder_id")
+  settleTxHash    String?       @map("settle_tx_hash")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+
+  item   Item  @relation(fields: [itemId], references: [id])
+  seller User  @relation("SellerAuctions", fields: [sellerId], references: [id])
+  bids   Bid[]
+
+  @@map("auctions")
+}
+
+model Bid {
+  id        String    @id @default(uuid())
+  auctionId String    @map("auction_id")
+  bidderId  String    @map("bidder_id")
+  amount    Decimal   @db.Decimal(78, 0)
+  txHash    String?   @map("tx_hash")
+  status    BidStatus @default(ACTIVE)
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  auction Auction @relation(fields: [auctionId], references: [id])
+  bidder  User    @relation(fields: [bidderId], references: [id])
+
+  @@unique([auctionId, bidderId, amount])
+  @@map("bids")
+}
