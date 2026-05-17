@@ -1,0 +1,27 @@
+{
+  "name": "testf-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": ["apps/*", "contracts"],
+  "scripts": {
+    "dev:frontend": "npm run dev --workspace=apps/frontend",
+    "dev:merchant": "npm run dev --workspace=apps/merchant-portal",
+    "dev:backend": "npm run dev --workspace=apps/backend",
+    "dev:contracts": "npm run node --workspace=contracts",
+    "build:frontend": "npm run build --workspace=apps/frontend",
+    "build:merchant": "npm run build --workspace=apps/merchant-portal",
+    "build:backend": "npm run build --workspace=apps/backend",
+    "compile:contracts": "npm run compile --workspace=contracts",
+    "test:contracts": "npm run test --workspace=contracts",
+    "deploy:contracts": "npm run deploy --workspace=contracts",
+    "db:migrate": "npm run migrate --workspace=apps/backend",
+    "db:seed": "npm run seed --workspace=apps/backend",
+    "lint": "eslint . --ext .ts,.tsx"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "eslint": "^8.56.0"
+  }
+}
