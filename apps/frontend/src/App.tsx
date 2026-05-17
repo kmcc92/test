@@ -1,6 +1,9 @@
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import HomePage from "./pages/HomePage";
+import ShopPage from "./pages/ShopPage";
+import BrandPage from "./pages/BrandPage";
+import ProductDetailPage from "./pages/ProductDetailPage";
 import AuctionsPage from "./pages/AuctionsPage";
 import AuctionDetailPage from "./pages/AuctionDetailPage";
 import VerifyPage from "./pages/VerifyPage";
@@ -9,11 +12,14 @@ import RegisterPage from "./pages/RegisterPage";
 
 export default function App() {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-white">
       <Navbar />
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/shop" element={<ShopPage />} />
+          <Route path="/brands/:brandId" element={<BrandPage />} />
+          <Route path="/products/:productId" element={<ProductDetailPage />} />
           <Route path="/auctions" element={<AuctionsPage />} />
           <Route path="/auctions/:id" element={<AuctionDetailPage />} />
           <Route path="/verify/:chipId" element={<VerifyPage />} />
