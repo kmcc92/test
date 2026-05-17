@@ -86,7 +86,7 @@ router.post(
         data: {
           itemId: data.itemId,
           sellerId: req.user!.userId,
-          reservePrice: BigInt(data.reservePrice),
+          reservePrice: data.reservePrice,
           startTime: new Date(data.startTime),
           endTime: new Date(data.endTime),
           onChainId: data.onChainId,
@@ -114,12 +114,13 @@ router.post(
       if (auction.status !== "ACTIVE") return res.status(400).json({ error: "Auction is not active" });
       if (new Date() >= auction.endTime) return res.status(400).json({ error: "Auction has ended" });
 
-      const bidAmount = BigInt(amount);
+      const bidAmount = amount;
       const reserve = BigInt(auction.reservePrice.toString());
       const highest = auction.highestBid ? BigInt(auction.highestBid.toString()) : 0n;
+      const bidAmountBig = BigInt(amount);
       const minBid = highest === 0n ? reserve : highest + (highest * 5n / 100n);
 
-      if (bidAmount < minBid) {
+      if (bidAmountBig < minBid) {
         return res.status(400).json({
           error: "Bid too low",
           minimumBid: minBid.toString(),
