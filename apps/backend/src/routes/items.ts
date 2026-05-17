@@ -10,7 +10,7 @@ const registerItemSchema = z.object({
   ipfsHash: z.string().min(1),
   nftTokenId: z.string().optional(),
   mintTxHash: z.string().optional(),
-  metadata: z.record(z.unknown()).default({}),
+  metadata: z.record(z.unknown()).default({}) as z.ZodDefault<z.ZodRecord<z.ZodString, z.ZodUnknown>>,
 });
 
 router.post(
@@ -30,7 +30,7 @@ router.post(
           ipfsHash: data.ipfsHash,
           nftTokenId: data.nftTokenId,
           mintTxHash: data.mintTxHash,
-          metadata: data.metadata,
+          metadata: data.metadata as object,
           brandId: brand.id,
         },
         include: { brand: { select: { name: true } } },
